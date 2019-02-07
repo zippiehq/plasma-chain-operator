@@ -17,10 +17,9 @@ function loadEthDB (config) {
 }
 
 function writeEthDB (config, ethDB) {
-  if (!fs.existsSync(config.dbDir)) {
-    log('Creating a new db directory because it does not exist')
-    fs.mkdirSync(config.dbDir, { recursive: true })
-    fs.mkdirSync(config.ethDBDir)
+  if (!fs.existsSync(config.ethDBDir)) {
+    log('Creating a new eth db directory because it does not exist')
+    fs.mkdirSync(config.ethDBDir, { recursive: true })
   }
   fs.writeFileSync(path.join(config.ethDBDir, ETH_DB_FILENAME), JSON.stringify(ethDB))
 }
