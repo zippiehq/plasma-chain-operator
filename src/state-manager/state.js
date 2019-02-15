@@ -64,7 +64,7 @@ class State {
     this.tmpTxLogFile = this.txLogDirectory + 'tmp-tx-log.bin'
     this.lock = {}
     this.recentTransactions = []
-    this.wrote = 0
+    this.wrote = 1
   }
 
   async init () {
