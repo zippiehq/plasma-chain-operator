@@ -1,11 +1,10 @@
 {
-  "dbDir": "./operator-db",
-  "plasmaRegistryAddress": "0x18d8BD44a01fb8D5f295a2B3Ab15789F26385df7",
-  "plasmaChainName": "I <3 Plasma",
-  "operatorIpAddress": "0.0.0.0",
-  "port": "3000",
-  "finalityDepth": "1",
-  "blockTimeInSeconds": "30",
-  "ethPollInterval": "3000",
-  "web3HttpProvider": "https://rinkeby.infura.io/v3/fce31f1fb2d54caa9b31ed7d28437fa5"
+ "dbDir": "./operator-db",
+ "plasmaRegistryAddress": "0xC9122f6FE9E9a5E614Cd74647D854Be83991cd32",
+ "plasmaChainName": "I :heart: Plasma",
+ "operatorIpAddress": "0.0.0.0",
+ "port": "3000",
+ "finalityDepth": "1",
+ "blockTimeInSeconds": "30",
+ "web3WebsocketProvider":"wss://kovan.query.zippie.org"
 }

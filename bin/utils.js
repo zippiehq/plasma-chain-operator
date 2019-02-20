@@ -33,20 +33,30 @@ async function getAccount () {
 
 async function _unlockAccount (encryptedAccount) {
   let account
-  for (let i = 0; i < 3; i++) {
-    const response = await inquirer.prompt([{
-      type: 'password',
-      name: 'password',
-      message: 'Passphrase:'
-    }])
+
+  if (process.env.PASSPHRASE != null) {
+    console.log('Successfully read passphrase from environment.'.green)
     try {
-      account = web3.eth.accounts.wallet.decrypt([encryptedAccount], response.password)['0']
+      account = web3.eth.accounts.wallet.decrypt([encryptedAccount], process.env.PASSPHRASE)['0']
     } catch (err) {
-      account = null
-      console.log('Wrong password'.red, 'Please try again', '<3'.red)
+      console.log('Private key decryption failed'.red)
     }
-    if (account !== null) {
-      return account
+  } else {
+    for (let i = 0; i < 3; i++) {
+      const response = await inquirer.prompt([{
+        type: 'password',
+        name: 'password',
+        message: 'Passphrase:'
+      }])
+      try {
+        account = web3.eth.accounts.wallet.decrypt([encryptedAccount], response.password)['0']
+      } catch (err) {
+        account = null
+        console.log('Wrong password'.red, 'Please try again', '<3'.red)
+      }
+      if (account !== null) {
+        return account
+      }
     }
   }
   return account
