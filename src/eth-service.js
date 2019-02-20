@@ -195,11 +195,8 @@ async function _setupGanache (web3, config) {
 }
 
 async function submitRootHash (rootHash) {
-  var foo = Math.random()
-  log('submitting root hash ' + rootHash + ' ' + foo)
-  var reciept = await es.plasmaChain.methods.submitBlock('0x' + rootHash).send({gas: 400000, gasPrice: '1000000000'})
+  const reciept = await es.plasmaChain.methods.submitBlock('0x' + rootHash).send({gas: 400000, gasPrice: '5000000000'})
   log('Ethereum reciept for block number:', reciept.events.SubmitBlockEvent.returnValues['0'], 'wish root hash:', reciept.events.SubmitBlockEvent.returnValues['1'])
-  log('done submit root hash ' + rootHash + ' ' + foo)
 }
 
 // Set functions which we will export as well
