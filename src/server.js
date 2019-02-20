@@ -14,7 +14,10 @@ const models = require('plasma-utils').serialization.models
 const SignedTransaction = models.SignedTransaction
 const debug = require('debug')
 
-debug.enable('info:state,info:block-store,info:leveldb-sum-tree')
+if (process.env.DEBUG === undefined) {
+  // If no logging is enabled, set these as defaults
+  debug.enable('info:state,info:block-store,info:leveldb-sum-tree')
+}
 
 // Set up express
 const app = express()
@@ -186,7 +189,11 @@ async function newBlockTrigger (blockTime) {
     method: constants.NEW_BLOCK_METHOD
   }
   const response = await sendMessage(stateManager, newBlockReq)
-  log('New block created with blocknumber:', response.message.newBlockNumber)
+  if (response.error === undefined) {
+    log('New block created with blockNumber:', response.message.newBlockNumber)
+  } else {
+    log('Block is empty--skipping new block')
+  }
   setTimeout(() => newBlockTrigger(blockTime), blockTime)
 }
 
