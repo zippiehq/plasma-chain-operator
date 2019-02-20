@@ -14,7 +14,7 @@ const models = require('plasma-utils').serialization.models
 const SignedTransaction = models.SignedTransaction
 const debug = require('debug')
 
-//debug.enable('info:state,info:block-store,info:leveldb-sum-tree')
+debug.enable('info:state,info:block-store,info:leveldb-sum-tree')
 
 // Set up express
 const app = express()
@@ -42,33 +42,12 @@ function sendMessage (process, message) {
   return deferred.promise
 }
 
-var hashQueue = []
-
-async function processHashQueue() {
-   while (hashQueue.length > 0) {
-       var elm = hashQueue[0]
-       console.log('processing hash queue ' + elm)
-       await EthService.submitRootHash(elm)
-       hashQueue.shift()
-   }
-}
-
 function resolveMessage (m) {
   log('Resolving message with ipcID', m.ipcID)
   if (m.ipcID === -1) {
     // If this is a message directly from a child, it must be the root hash from the block-store
-    log('Got new block root:', m.message.rootHash, '- queueing')
-    
-    hashQueue.push(m.message.rootHash)
-    if (hashQueue.length === 1) {
-       console.log('queued in hash queue as first')
-       processHashQueue().then(() => { 
-         console.log('done processing hash queue')
-       })
-    } else {
-      console.log('added to hash queue')
-    }
-    
+    log('Got new block root:', m.message.rootHash, '- submitting to Ethereum')
+    EthService.submitRootHash(m.message.rootHash)
     return
   }
   messageQueue[m.ipcID].resolve(m)
@@ -125,9 +104,7 @@ async function startup (config) {
   }
   try {
     // Setup web3
-    console.log('Starting EthService')
     await EthService.startup(config)
-    console.log('EthService started up')
     // Setup our child processes -- stateManager & blockManager
     stateManager = cp.fork(path.join(__dirname, '/state-manager/app.js'))
     blockManager = cp.fork(path.join(__dirname, '/block-manager/app.js'))
@@ -209,11 +186,7 @@ async function newBlockTrigger (blockTime) {
     method: constants.NEW_BLOCK_METHOD
   }
   const response = await sendMessage(stateManager, newBlockReq)
-  if (!response.message.result.newBlock) {
-    log('No new block created ..')
-  } else {
-    log('New block created with blocknumber:', response.message.result.newBlockNumber)
-  }
+  log('New block created with blocknumber:', response.message.newBlockNumber)
   setTimeout(() => newBlockTrigger(blockTime), blockTime)
 }
 

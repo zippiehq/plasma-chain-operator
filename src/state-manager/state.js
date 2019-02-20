@@ -64,7 +64,6 @@ class State {
     this.tmpTxLogFile = this.txLogDirectory + 'tmp-tx-log.bin'
     this.lock = {}
     this.recentTransactions = []
-    this.wrote = 0
   }
 
   async init () {
@@ -105,23 +104,15 @@ class State {
       log('Waiting to acquire global lock')
       await timeout(timeoutAmt())
     }
-    if (this.wrote === 0) {
-      // there's no need to start a new block as nothing was written
-      log('Decided not to start a new block, nothing was written')
-      delete this.lock.all
-      return
-    }
     // Everything should be locked now that we have a `lock.all` activated. Time to increment the blockNumber
     this.blockNumber = this.blockNumber.add(new BN(1))
     // Create a new block
     await this.db.put(Buffer.from('blockNumber'), this.blockNumber.toArrayLike(Buffer, 'big', BLOCKNUMBER_BYTE_SIZE))
     // Start a new tx log
     this.writeStream.end()
-    
     const txLogPath = this.txLogDirectory + this.blockNumber.subn(1).toString(10, BLOCKNUMBER_BYTE_SIZE * 2)
     await fs.rename(this.tmpTxLogFile, txLogPath)
     this.writeStream = fs.createWriteStream(this.tmpTxLogFile, { flags: 'a' })
-    this.wrote = 0
     // Release our lock
     delete this.lock.all
     log('#### Started new Block #', this.blockNumber.toString())
@@ -236,7 +227,6 @@ class State {
     // Write the transaction to the DB and tx log
     await this.db.batch(dbBatch)
     this.writeStream.write(Buffer.from(txEncoding, 'hex'))
-    this.wrote += 1
     // And add to our recent transaction cache
     this.addRecentTransaction(txEncoding)
   }

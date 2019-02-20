@@ -29,11 +29,7 @@ process.on('message', async (m) => {
   } else if (m.message.method === constants.NEW_BLOCK_METHOD) {
     const blockNumber = await state.startNewBlock()
     log('OUTGOING new block success with rpcID:', m.message.id)
-    if (blockNumber === undefined) {
-      process.send({ ipcID: m.ipcID, message: { result: { newBlock: false } } })
-    } else {
-      process.send({ ipcID: m.ipcID, message: { result: { newBlock: true, newBlockNumber: blockNumber.toString() } } })
-    }
+    process.send({ ipcID: m.ipcID, message: { result: { newBlockNumber: blockNumber.toString() } } })
     return
   // ******* GET_BLOCK_NUMBER ******* //
   } else if (m.message.method === constants.GET_BLOCK_NUMBER_METHOD) {
